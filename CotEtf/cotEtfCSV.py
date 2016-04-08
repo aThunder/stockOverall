@@ -37,12 +37,15 @@ class setCSVFile():
         # self.createCSV
 
     def createCSV(self):
-        self.timeSeries0.to_csv('{0} ohlc.csv'.format(self.symbol))
-        self.dataFile = pullData.read_csv('{0} ohlc.csv'.format(self.symbol), index_col='Date',parse_dates=True)
+        # self.timeSeries0.to_csv('{0} ohlc.csv'.format(self.symbol))
+        # self.dataFile = pullData.read_csv('{0} ohlc.csv'.format(self.symbol), index_col='Date', parse_dates=True)
+        self.timeSeries0.to_csv('../{0} ohlc.csv'.format(self.symbol))
+        self.dataFile = pullData.read_csv('../{0} ohlc.csv'.format(self.symbol), index_col='Date', parse_dates=True)
         return self.dataFile
 
     def useCurrentCSV(self):
-        self.dataFile = pullData.read_csv('{0} ohlc.csv'.format(self.symbol), index_col='Date',parse_dates=True)
+        # self.dataFile = pullData.read_csv('{0} ohlc.csv'.format(self.symbol), index_col='Date',parse_dates=True)
+        self.dataFile = pullData.read_csv('../{0} ohlc.csv'.format(self.symbol), index_col='Date', parse_dates=True)
         #print('self.dataFile print:', self.dataFile[2:3])
         print("Entered stxSetFile1b.py to create new file")
         return self.dataFile

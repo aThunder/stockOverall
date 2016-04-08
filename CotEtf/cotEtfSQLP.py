@@ -67,7 +67,8 @@ class Csv2SQL():
         for i in self.symbol:
             # print('asdfg: ',i)
             rowNumber=0
-            with open('{0} ohlc.csv'.format(i), newline='') as csvfile:
+            # with open('{0} ohlc.csv'.format(i), newline='') as csvfile:
+            with open('../{0} ohlc.csv'.format(i), newline='') as csvfile:
               reader = csv.reader(csvfile, delimiter=',', quotechar='|')
               for row in reader:
                 if rowNumber > 0:
