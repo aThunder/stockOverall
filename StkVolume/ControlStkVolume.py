@@ -27,7 +27,7 @@ class QueryData():
         self.numberDays = numberDays + 1 #for subset
         self.numberDaysRetrieve = numberDays * 2 #for fullset
         print()
-        print(self.symbol.upper())
+        print("Symbol: {0}   Days: {1}".format(self.symbol.upper(), self.numberDays-1))
         # print("Begin Exception Testing")
 
     def retrieveFullSet(self):
@@ -39,15 +39,27 @@ class QueryData():
             #                                        " AND date('now',-5 days) "
             #                                        " ".format(IDKEY,self.symbol),self.diskEngine)
             #
+            # self.dfFullSet = pd.read_sql_query("SELECT SYMBOL,DATE,CLOSE,VOL "
+            #                                        "FROM (SELECT * FROM SymbolsDataDaily "
+            #                                        "WHERE SYMBOL IN ('{0}')"
+            #                                        "ORDER BY DATE DESC LIMIT {1}) "
+            #                                        "ORDER BY DATE ASC "
+            #                                        " ".format(self.symbol,self.numberDaysRetrieve),self.diskEngine)
+
             self.dfFullSet = pd.read_sql_query("SELECT SYMBOL,DATE,CLOSE,VOL "
-                                                   "FROM (SELECT * FROM SymbolsDataDaily "
-                                                   "WHERE SYMBOL IN ('{0}')"
-                                                   "ORDER BY DATE DESC LIMIT {1}) "
-                                                   "ORDER BY DATE ASC "
-                                                   " ".format(self.symbol,self.numberDaysRetrieve),self.diskEngine)
+                                               "FROM (SELECT * FROM SymbolsDataDaily "
+                                               "WHERE SYMBOL IN ('{0}')"
+                                               "ORDER BY DATE DESC) "
+                                               "ORDER BY DATE ASC "
+                                               " ".format(self.symbol), self.diskEngine)
 
             test1 = self.dfFullSet['date'][1]
-            # print("FullSet 2nd row: ", self.dfFullSet['date'][1])
+            print("First Date of Data Retrieved: ", self.dfFullSet['date'][1])
+            self.countRowsFullSet = self.dfFullSet['date'].count()
+            print("Last Date of Data Retrieved: ", self.dfFullSet['date'][self.countRowsFullSet-1])
+            print("Total Number of Days: ", self.countRowsFullSet)
+            print()
+            # print(self.dfFullSet)
 
             status1 = True
             return status1
@@ -72,9 +84,16 @@ class QueryData():
                                                    "WHERE SYMBOL IN ('{0}')"
                                                    "ORDER BY DATE DESC LIMIT {1}) "
                                                    "ORDER BY DATE ASC "
-                                                   " ".format(self.symbol,self.numberDays),self.diskEngine)
-            # print("Subset: ", self.dfSubset)
-            test2 = test1 = self.dfSubSet['date'][1]
+                                                   " ".format(self.symbol,int(self.countRowsFullSet/2)),self.diskEngine)
+            print("First Date of SubSet Data Retrieved: ", self.dfSubSet['date'][1])
+            self.countRowsSubSet = self.dfSubSet['date'].count()
+            print("Last Date of SubSet Data Retrieved: ", self.dfSubSet['date'][self.countRowsSubSet - 1])
+            print("Total Number of SubSet Days: ", self.countRowsSubSet)
+            print()
+
+
+            # print("Subset: ", self.dfSubSet['date'])
+            # test2 = self.dfSubSet['date'][1]
             # print("Subset 2nd row: ", self.dfSubSet['date'][1])
             status2 = True
             return status2
@@ -83,15 +102,27 @@ class QueryData():
             status2 = False
             return status2
 
+    def returnNumberOfAvailableDays(self):
+        return self.countRowsSubSet
+
     def retrieveOverallMktSet(self,symbolMkt):
         self.symbolMkt = symbolMkt
         try:
+            # self.dfOverallMktSet = pd.read_sql_query("SELECT SYMBOL,DATE,CLOSE,VOL "
+            #                                   "FROM (SELECT * FROM SymbolsDataDaily "
+            #                                   "WHERE SYMBOL IN ('{0}')"
+            #                                   "ORDER BY DATE DESC LIMIT {1}) "
+            #                                   "ORDER BY DATE ASC "
+            #                                   " ".format(self.symbolMkt, self.numberDaysRetrieve), self.diskEngine)
+
             self.dfOverallMktSet = pd.read_sql_query("SELECT SYMBOL,DATE,CLOSE,VOL "
-                                              "FROM (SELECT * FROM SymbolsDataDaily "
-                                              "WHERE SYMBOL IN ('{0}')"
-                                              "ORDER BY DATE DESC LIMIT {1}) "
-                                              "ORDER BY DATE ASC "
-                                              " ".format(self.symbolMkt, self.numberDaysRetrieve), self.diskEngine)
+                                                     "FROM (SELECT * FROM SymbolsDataDaily "
+                                                     "WHERE SYMBOL IN ('{0}')"
+                                                     "ORDER BY DATE DESC) "
+                                                     "ORDER BY DATE ASC "
+                                                     " ".format(self.symbolMkt),
+                                                     self.diskEngine)
+
             # print("Subset: ", self.dfSubset)
             test3 = test1 = self.dfOverallMktSet['date'][1]
             # print("OverallMkt ({0}) 2nd row: {1}".format(self.symbolMkt,self.dfOverallMktSet['date'][1]))
@@ -120,7 +151,7 @@ class IndicatorsVolume(QueryData):
             print("   4. Exit")
             print()
             choice1 = int(input("Enter number here: "))
-            print("Choice Selected: ",choice1)
+            # print("Choice Selected: ",choice1)
             return choice1
         except:
             print()
@@ -139,20 +170,25 @@ class IndicatorsVolume(QueryData):
         stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
 
     def callStkVolumeMktRto(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays):
+        print("Enter Moving Average length (days)")
+        movAvgLen = int(input("(must be in 2-{0} range): ".format(numberOfDays)))
+        print()
+        daysToReport = int(input("How many days to  include in report?: "))
         import stkVolumeAllTests
-        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays,movAvgLen,daysToReport)
 
 def main():
     a = QueryData()
     # criteria5 = ['%S&P%','%Gold%','%Bond%','%Oil%']
-    criteria5 = ['aapl','spx'] #,';dssdf','spy'] #,'sl;dfk','spy'] #,'mmm','gld']
-    # numberOfDays = input("Enter Number of Days for Volume Tests: ") ## commented out for testing only
-    numberOfDays = 50
+    criteria5 = ['aapl'] #,';dssdf','spy'] #,'sl;dfk','spy'] #,'mmm','gld']
+    print()
 
+    numberOfDays = 50 #just filler variable now until determining which of 2 querys to use QueryData
     for i in criteria5:
         a.setSettings(i,99,numberOfDays)
         fullSet1 = a.retrieveFullSet()
         subSet1 = a.retrieveSubSet()
+        numberAvailableDays = a.returnNumberOfAvailableDays()
         overallMktSet1 = a.retrieveOverallMktSet('spy')
 
         if fullSet1:
@@ -160,23 +196,22 @@ def main():
             subSet1a = a.returnSubSet1()
             overallMktSet1a = a.returnOverallMktSet1()
             print("===================================")
-            buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberOfDays)
+            buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberAvailableDays)
         else:
-            print('NOOOOOO')
+            print('{0} not in database'.format(i))
             print()
 
 def buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberOfDays):
             b = IndicatorsVolume()
-
             choice1 = b.chooseIndicators()
-            # print("Type: ",type(choice1))
-            # print("choice1: ",choice1)
 
             if choice1 == 1:
                 b.callStkVolumeUpDown(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
             elif choice1 == 2:
                 b.callStkVolumeMovAvgs(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
             elif choice1 == 3:
+                print("Choice Selected: 3. Volume Stock:Market Ratios")
+                print()
                 b.callStkVolumeMktRto(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
             elif choice1 == 4:
                 print("Bye")

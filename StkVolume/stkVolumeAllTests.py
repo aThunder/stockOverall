@@ -23,15 +23,17 @@ class stkVolume():
     def __init__(self):
         self.IDInit = 'xxxxx'
 
-    def setSettings(self,symbol,IDKEY,numberDays,dfFullSet,dfSubSet,dfOverallMktSet):
+    def setSettings(self,symbol,IDKEY,numberDays,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport):
         self.symbol = symbol
         self.numberDays = numberDays + 1 #for subset
-        self.numberDaysRetrieve = numberDays * 2 #for fullset
+        self.numberDaysRetrieve = self.numberDays * 2 #for fullset
         self.dfFullSet = dfFullSet
         self.dfSubSet = dfSubSet
         self.dfOverallMktSet = dfOverallMktSet
+        self.movAvgLen = movAvgLen
+        self.daysToReport = daysToReport
+        print(type(movAvgLen))
         print()
-        # print('ID KEY: ',IDKEY,self.symbol.upper())
         print()
         # print("Full: ", self.dfFullSet)
 
@@ -184,23 +186,83 @@ class stkVolume():
         print(self.dfFullSet[['date', 'rolling']][displayDaysNegative:])
 
     def vsOverallVolume(self):
-        # print("SPY: ",self.dfMarket)
         self.dfFullSet['MktVolu'] = self.dfOverallMktSet['vol']
         self.dfFullSet['MktRatioVol'] = self.dfFullSet['MktVolu'] / pd.rolling_mean(self.dfFullSet['MktVolu'],
-                                                                                    self.numberDays - 1)
+                                                                                    self.movAvgLen)
         # print('MktRatio: ', self.dfFullSet)
 
         self.dfFullSet['IndivRatioVol'] = self.dfFullSet['vol'] / pd.rolling_mean(self.dfFullSet['vol'],
-                                                                                  self.numberDays - 1)
+                                                                                  self.movAvgLen)
         # print('MktRatio: ', self.dfFullSet)
 
         self.dfFullSet['IndivtoMktVol'] = np.round(self.dfFullSet['IndivRatioVol'] / self.dfFullSet['MktRatioVol'],
                                                    decimals=3)
-        print("Complete: ")
-        print(self.dfFullSet[-10:])
+        # print("Complete: ")
+        includeInResults = self.daysToReport * -1
+        print(includeInResults)
+        print(self.dfFullSet[includeInResults:])
+        # print(self.dfFullSet)
+
+    def vsOverallVolumeUpDownAvg(self):
+        self.upVOV = []
+        self.dnVOV = []
+        totalUpVOV = 0
+        totalDnVOV = 0
+        counter = self.daysToReport-1
+
+        # print(self.dfFullSet['close'].diff())
+        for i in self.dfFullSet['close'][self.daysToReport:].diff():
+            # print("i: ",i)
+            # print("counter: ", counter)
+            # print("VRunItem: ",self.dfSubSet['vol'][counter])
+
+            if i > 0 and counter > 0:
+                self.upVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
+            elif i < 0 and counter > 0:
+                self.dnVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
+            counter += 1
+
+        for i in self.upVOV:
+            totalUpVOV += i
+            # print("test1: ",totalUpVOV)
+        try:
+            # upAvg = totalUp/len(self.upVol) # redundant with the np.mean line below
+            # print('upVolumeMean: ', upAvg)
+            print("Results calculated for {0} days of data".format(self.daysToReport))
+            print("{0}-day MovingAvgs used for comparisons".format(self.movAvgLen))
+            print()
+            print("UpDaysVOVCount: ", len(self.upVOV))
+
+            upVOVnp = np.mean(self.upVOV)
+            print("upVolumeVOVMeanNP: ", upVOVnp)
+            print()
+        except:
+            print("There were no UP days in the {0}-day range".format(self.numberDays - 1))
+            print()
+        for i in self.dnVOV:
+            totalDnVOV += i
+            # print("test2: ",totalDnVOV)
+        try:
+            # dnAvg = totalDn/len(self.dnVol) # redundant with the np.mean line below
+            # print('downVolumeMean: ', dnAvg)
+            print("DownDaysVOVCount: ", len(self.dnVOV))
+
+            dnVOVnp = np.mean(self.dnVOV)
+            print("downVolumeVOVMeanNP: ", dnVOVnp)
+            print()
+        except:
+            print("There were no DOWN days in the {0}-day range".format(self.numberDays - 1))
+            print()
+        try:
+            print("Up:Down Volume Days: ", len(self.upVOV) / len(self.dnVOV))
+            print("Up:Down Volume Avg: ", upVOVnp / dnVOVnp)
+        except:
+            print("Ratio of Up:Down Volume Days N/A")
+            print()
 
 
-        # def plot1(self):
+
+    # def plot1(self):
     #     print("Now plotting")
     #     plt.plot(self.intoPandas1['NetReportable'])
     #     plt.ylabel("Net Position")
@@ -211,11 +273,13 @@ class stkVolume():
     #
     # #         # db.execute('insert into test(t1, i1) values(?,?)', ('one', 1)) ## sample for format syntax
 
-def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays):
+def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays,movAvgLen,daysToReport):
     a = stkVolume()
     numberOfDays = numberDays
 
-    a.setSettings(symbol,99,numberOfDays,dfFullSet,dfSubSet,dfOverallMktSet)
+    a.setSettings(symbol,99,numberOfDays,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport)
+    # print("OverallMktSet: ")
+    # print(dfOverallMktSet)
     #         # a.volumeChg()
     #         # a.mask1()
     #         # a.orderData()
@@ -235,13 +299,11 @@ def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays):
         print(symbol.upper()," Volume:  Stock-to-Market Ratios")
         print()
         a.vsOverallVolume()
-    # if choice == 4:
-    #     Print("So Long")
-    #     break
+        a.vsOverallVolumeUpDownAvg()
     print()
     print("Request Completed. Select another choice")
     print()
     import ControlStkVolume
     ControlStkVolume.buildIndicators(symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays)
 
-if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,numberDays)
+if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,numberDays,movAvgLen,daysToReport)
