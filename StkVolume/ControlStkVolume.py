@@ -175,7 +175,7 @@ class IndicatorsVolume(QueryData):
         print()
         daysToReport = int(input("How many days to  include in report?: "))
         import stkVolumeAllTests
-        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays,movAvgLen,daysToReport)
+        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a,movAvgLen,daysToReport)
 
 def main():
     a = QueryData()

@@ -198,9 +198,9 @@ class stkVolume():
         self.dfFullSet['IndivtoMktVol'] = np.round(self.dfFullSet['IndivRatioVol'] / self.dfFullSet['MktRatioVol'],
                                                    decimals=3)
         # print("Complete: ")
-        includeInResults = self.daysToReport * -1
-        print(includeInResults)
-        print(self.dfFullSet[includeInResults:])
+        self.includeInResults = self.daysToReport * -1
+        print(self.includeInResults)
+        print(self.dfFullSet[self.includeInResults:])
         # print(self.dfFullSet)
 
     def vsOverallVolumeUpDownAvg(self):
@@ -208,12 +208,12 @@ class stkVolume():
         self.dnVOV = []
         totalUpVOV = 0
         totalDnVOV = 0
-        counter = self.daysToReport-1
+        counter = self.daysToReport
 
         # print(self.dfFullSet['close'].diff())
-        for i in self.dfFullSet['close'][self.daysToReport:].diff():
+        for i in self.dfFullSet['close'][self.includeInResults-1:].diff():
             # print("i: ",i)
-            # print("counter: ", counter)
+            # print("counte4r: ", counter)
             # print("VRunItem: ",self.dfSubSet['vol'][counter])
 
             if i > 0 and counter > 0:
@@ -232,12 +232,12 @@ class stkVolume():
             print("{0}-day MovingAvgs used for comparisons".format(self.movAvgLen))
             print()
             print("UpDaysVOVCount: ", len(self.upVOV))
-
+            len(self.upVOV) > 0 #exception test
             upVOVnp = np.mean(self.upVOV)
             print("upVolumeVOVMeanNP: ", upVOVnp)
             print()
         except:
-            print("There were no UP days in the {0}-day range".format(self.numberDays - 1))
+            print("There were no UP days in the {0}-day range".format(self.daysToReport))
             print()
         for i in self.dnVOV:
             totalDnVOV += i
@@ -246,12 +246,12 @@ class stkVolume():
             # dnAvg = totalDn/len(self.dnVol) # redundant with the np.mean line below
             # print('downVolumeMean: ', dnAvg)
             print("DownDaysVOVCount: ", len(self.dnVOV))
-
+            len(self.dnVOV) > 0 #exception test
             dnVOVnp = np.mean(self.dnVOV)
             print("downVolumeVOVMeanNP: ", dnVOVnp)
             print()
         except:
-            print("There were no DOWN days in the {0}-day range".format(self.numberDays - 1))
+            print("There were no DOWN days in the {0}-day range".format(self.daysToReport))
             print()
         try:
             print("Up:Down Volume Days: ", len(self.upVOV) / len(self.dnVOV))
