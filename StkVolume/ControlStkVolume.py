@@ -22,13 +22,10 @@ class QueryData():
         self.diskEngine = create_engine('sqlite:///../allStks.db')
         self.recentList =[]
 
-    def setSettings(self,symbol,IDKEY,numberDays):
+    def setSettings(self,symbol,IDKEY):
         self.symbol = symbol
-        self.numberDays = numberDays + 1 #for subset
-        self.numberDaysRetrieve = numberDays * 2 #for fullset
         print()
-        print("Symbol: {0}   Days: {1}".format(self.symbol.upper(), self.numberDays-1))
-        # print("Begin Exception Testing")
+        print("Symbol: {0}".format(self.symbol.upper()))
 
     def retrieveFullSet(self):
         # status1 = True
@@ -161,17 +158,17 @@ class IndicatorsVolume(QueryData):
             print("Choice1: ", choice1)
             return choice1
 
-    def callStkVolumeUpDown(self,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays):
+    def callStkVolumeUpDown(self,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
         import stkVolumeAllTests
-        stkVolumeAllTests.main(1,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+        stkVolumeAllTests.main(1,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
 
-    def callStkVolumeMovAvgs(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays):
+    def callStkVolumeMovAvgs(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
         import stkVolumeAllTests
-        stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+        stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
 
-    def callStkVolumeMktRto(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberOfDays):
+    def callStkVolumeMktRto(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
         print("Enter Moving Average length (days)")
-        movAvgLen = int(input("(must be in 2-{0} range): ".format(numberOfDays)))
+        movAvgLen = int(input("(must be in 2-{0} range): ".format(numberAvailableDays)))
         print()
         daysToReport = int(input("How many days to  include in report?: "))
         import stkVolumeAllTests
@@ -183,9 +180,8 @@ def main():
     criteria5 = ['aapl'] #,';dssdf','spy'] #,'sl;dfk','spy'] #,'mmm','gld']
     print()
 
-    numberOfDays = 50 #just filler variable now until determining which of 2 querys to use QueryData
     for i in criteria5:
-        a.setSettings(i,99,numberOfDays)
+        a.setSettings(i,99)
         fullSet1 = a.retrieveFullSet()
         subSet1 = a.retrieveSubSet()
         numberAvailableDays = a.returnNumberOfAvailableDays()
@@ -201,25 +197,25 @@ def main():
             print('{0} not in database'.format(i))
             print()
 
-def buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberOfDays):
+def buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberAvailableDays):
             b = IndicatorsVolume()
             choice1 = b.chooseIndicators()
 
             if choice1 == 1:
-                b.callStkVolumeUpDown(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+                b.callStkVolumeUpDown(i, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
             elif choice1 == 2:
-                b.callStkVolumeMovAvgs(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+                b.callStkVolumeMovAvgs(i, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
             elif choice1 == 3:
                 print("Choice Selected: 3. Volume Stock:Market Ratios")
                 print()
-                b.callStkVolumeMktRto(i, fullSet1a, subSet1a, overallMktSet1a, numberOfDays)
+                b.callStkVolumeMktRto(i, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
             elif choice1 == 4:
                 print("Bye")
                 # break
             else:
                 print("**********Invalid Entry. Try Again**********")
                 # b.chooseIndicators()
-                buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberOfDays)
+                buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberAvailableDays)
 
 if __name__ == '__main__': main()
 

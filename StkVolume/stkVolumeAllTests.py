@@ -23,10 +23,8 @@ class stkVolume():
     def __init__(self):
         self.IDInit = 'xxxxx'
 
-    def setSettings(self,symbol,IDKEY,numberDays,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport):
+    def setSettings(self,symbol,IDKEY,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport):
         self.symbol = symbol
-        self.numberDays = numberDays + 1 #for subset
-        self.numberDaysRetrieve = self.numberDays * 2 #for fullset
         self.dfFullSet = dfFullSet
         self.dfSubSet = dfSubSet
         self.dfOverallMktSet = dfOverallMktSet
@@ -199,22 +197,23 @@ class stkVolume():
                                                    decimals=3)
         # print("Complete: ")
         self.includeInResults = self.daysToReport * -1
-        print(self.includeInResults)
-        print(self.dfFullSet[self.includeInResults:])
-        # print(self.dfFullSet)
+        # print(self.includeInResults)
+        # print(self.dfFullSet[self.includeInResults:])
+        print(self.dfFullSet.tail())
 
     def vsOverallVolumeUpDownAvg(self):
         self.upVOV = []
         self.dnVOV = []
         totalUpVOV = 0
         totalDnVOV = 0
-        counter = self.daysToReport
+
+        counter = (self.dfFullSet['date'].count() - 1 - self.daysToReport)
+        print("counter: ", counter)
+        print()
 
         # print(self.dfFullSet['close'].diff())
+
         for i in self.dfFullSet['close'][self.includeInResults-1:].diff():
-            # print("i: ",i)
-            # print("counte4r: ", counter)
-            # print("VRunItem: ",self.dfSubSet['vol'][counter])
 
             if i > 0 and counter > 0:
                 self.upVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
@@ -222,9 +221,11 @@ class stkVolume():
                 self.dnVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
             counter += 1
 
+        # print("upVOVList: ", self.upVOV)
+        # print("dnVOVList: ", self.dnVOV)
+
         for i in self.upVOV:
             totalUpVOV += i
-            # print("test1: ",totalUpVOV)
         try:
             # upAvg = totalUp/len(self.upVol) # redundant with the np.mean line below
             # print('upVolumeMean: ', upAvg)
@@ -241,7 +242,6 @@ class stkVolume():
             print()
         for i in self.dnVOV:
             totalDnVOV += i
-            # print("test2: ",totalDnVOV)
         try:
             # dnAvg = totalDn/len(self.dnVol) # redundant with the np.mean line below
             # print('downVolumeMean: ', dnAvg)
@@ -273,11 +273,10 @@ class stkVolume():
     #
     # #         # db.execute('insert into test(t1, i1) values(?,?)', ('one', 1)) ## sample for format syntax
 
-def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays,movAvgLen,daysToReport):
+def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport):
     a = stkVolume()
-    numberOfDays = numberDays
 
-    a.setSettings(symbol,99,numberOfDays,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport)
+    a.setSettings(symbol,99,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport)
     # print("OverallMktSet: ")
     # print(dfOverallMktSet)
     #         # a.volumeChg()
@@ -304,6 +303,6 @@ def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays,movAvgLen,
     print("Request Completed. Select another choice")
     print()
     import ControlStkVolume
-    ControlStkVolume.buildIndicators(symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberDays)
+    ControlStkVolume.buildIndicators(symbol,dfFullSet,dfSubSet,dfOverallMktSet,daysToReport)
 
-if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,numberDays,movAvgLen,daysToReport)
+if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,movAvgLen,daysToReport)
