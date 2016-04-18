@@ -273,7 +273,7 @@ class stkVolume():
     #
     # #         # db.execute('insert into test(t1, i1) values(?,?)', ('one', 1)) ## sample for format syntax
 
-def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport):
+def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport,numberOfAvailableDays):
     a = stkVolume()
 
     a.setSettings(symbol,99,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToReport)
@@ -303,6 +303,6 @@ def main(choice1,symbol,dfFullSet,dfSubSet,dfOverallMktSet,movAvgLen,daysToRepor
     print("Request Completed. Select another choice")
     print()
     import ControlStkVolume
-    ControlStkVolume.buildIndicators(symbol,dfFullSet,dfSubSet,dfOverallMktSet,daysToReport)
+    ControlStkVolume.buildIndicators(symbol,dfFullSet,dfSubSet,dfOverallMktSet,numberOfAvailableDays)
 
-if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,movAvgLen,daysToReport)
+if __name__ == '__main__': main(choice1,symbol,fullSet1,subSet1,overallMktSet,movAvgLen,daysToReport,numberOfAvailableDays)

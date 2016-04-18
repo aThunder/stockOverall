@@ -167,12 +167,11 @@ class IndicatorsVolume(QueryData):
         stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
 
     def callStkVolumeMktRto(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
-        print("Enter Moving Average length (days)")
-        movAvgLen = int(input("(must be in 2-{0} range): ".format(numberAvailableDays)))
+        movAvgLen = int(input("Moving average length (2-{0} days)?: ".format(numberAvailableDays)))
         print()
-        daysToReport = int(input("How many days to  include in report?: "))
+        daysToReport = int(input("How many days to  include in report (1-{0})?: ".format(numberAvailableDays)))
         import stkVolumeAllTests
-        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a,movAvgLen,daysToReport)
+        stkVolumeAllTests.main(3, symbol1, fullSet1a, subSet1a, overallMktSet1a,movAvgLen,daysToReport,numberAvailableDays)
 
 def main():
     a = QueryData()
@@ -199,6 +198,7 @@ def main():
 
 def buildIndicators(i,fullSet1a,subSet1a,overallMktSet1a,numberAvailableDays):
             b = IndicatorsVolume()
+            # numberAvailableDays = a.returnNumberOfAvailableDays()
             choice1 = b.chooseIndicators()
 
             if choice1 == 1:
