@@ -159,12 +159,19 @@ class IndicatorsVolume(QueryData):
             return choice1
 
     def callStkVolumeUpDown(self,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
+        # movAvgLen = int(input("Moving average length (2-{0} days)?: ".format(numberAvailableDays))) # not currently needed in this def but needed by imported
+        movAvgLen = "filler"
+        print()
+        daysToReport = int(input("How many days to  include in report (1-{0})?: ".format(numberAvailableDays)))
         import stkVolumeAllTests
-        stkVolumeAllTests.main(1,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
+        stkVolumeAllTests.main(1,symbol1, fullSet1a, subSet1a, overallMktSet1a,movAvgLen,daysToReport,numberAvailableDays)
 
     def callStkVolumeMovAvgs(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
+        movAvgLen = int(input("Moving average length (2-{0} days)?: ".format(numberAvailableDays)))
+        print()
+        daysToReport = int(input("How many days to  include in report (1-{0})?: ".format(numberAvailableDays)))
         import stkVolumeAllTests
-        stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays)
+        stkVolumeAllTests.main(2,symbol1, fullSet1a, subSet1a, overallMktSet1a,movAvgLen,daysToReport,numberAvailableDays)
 
     def callStkVolumeMktRto(self, symbol1, fullSet1a, subSet1a, overallMktSet1a, numberAvailableDays):
         movAvgLen = int(input("Moving average length (2-{0} days)?: ".format(numberAvailableDays)))

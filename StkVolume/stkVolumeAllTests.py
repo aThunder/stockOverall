@@ -30,6 +30,7 @@ class stkVolume():
         self.dfOverallMktSet = dfOverallMktSet
         self.movAvgLen = movAvgLen
         self.daysToReport = daysToReport
+        self.includeInResults = self.daysToReport * -1
         print(type(movAvgLen))
         print()
         print()
@@ -61,18 +62,14 @@ class stkVolume():
         # print("volMask: ", volMaskUp)
         # gains = self.dfSubSet[volMaskUp]
         # print("Gains: ", gains, gains.count())
-        print("{0} Days of Tests For {1}".format(self.numberDays-1,self.symbol.upper()))
+        print("{0} Days of Tests For {1}".format(self.daysToReport,self.symbol.upper()))
         print("Through ", self.dfFullSet['date'][-1:])
         print()
         print("UpDays: ")
-        # print(self.dfSubSet[['date','Symbol','close','changeClose','vol']][self.volMaskUp])
-        # print()
-        print(self.dfSubSet[self.volMaskUp]['close'].count())
+        print("Count: ",self.dfSubSet[self.volMaskUp]['close'][self.daysToReport:].count())
         print()
         print("DownDays: ")
-        # print(self.dfSubSet[['date','Symbol','close','changeClose','vol']][self.volMaskDn])
-        # print()
-        print("Count: ", self.dfSubSet[self.volMaskDn]['close'].count())
+        print("Count: ", self.dfSubSet[self.volMaskDn]['close'][self.daysToReport:].count())
 
     def onBalanceVolume(self):
         self.runningVol = 0
@@ -100,7 +97,7 @@ class stkVolume():
         lastOBV = obvFirstLast[counter-1]
         print()
         print("OBV:first,last: ",firstOBV,lastOBV)
-        print("OBV Change From {0} days prior: {1}".format(self.numberDays-1,lastOBV-firstOBV))
+        print("OBV Change From {0} days prior: {1}".format(self.daysToReport,lastOBV-firstOBV))
         print()
 
     def avgVolumeUpDown(self):
@@ -108,26 +105,26 @@ class stkVolume():
         self.dnVol = []
         totalUp = 0
         totalDn = 0
-        counter = 0
+        counter = (self.dfFullSet['date'].count() - 1 - self.daysToReport)
+        print("counter: ", counter)
+        print()
 
-        for i in self.dfSubSet['close'].diff():
-            # print("i: ",i)
-            # print("counter: ", counter)
-            # print(self.dfSubSet['date'][counter])
-            #
-            # print("VRunItem: ",self.dfSubSet['vol'][counter])
+        for i in self.dfFullSet['close'][self.includeInResults-1:].diff():
 
             if i > 0 and counter > 0:
-                # print("YES")
-                self.upVol.append(self.dfSubSet['vol'][counter])
-                # print("upVol: ", self.upVol)
+                self.upVol.append(self.dfFullSet['vol'][counter])
             elif i < 0 and counter > 0:
-                # print("NO")
-                self.dnVol.append(self.dfSubSet['vol'][counter])
-                # print("dnVol: ", self.dnVol)
-            # print()
+                self.dnVol.append(self.dfFullSet['vol'][counter])
 
             counter += 1
+
+        # for i in self.dfFullSet['close'][self.includeInResults - 1:].diff():
+        #
+        #     if i > 0 and counter > 0:
+        #         self.upVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
+        #     elif i < 0 and counter > 0:
+        #         self.dnVOV.append(self.dfFullSet['IndivtoMktVol'][counter])
+        #     counter += 1
 
         for i in self.upVol:
             totalUp += i
@@ -140,7 +137,7 @@ class stkVolume():
             print("upVolumeMeanNP: ", upVolNP)
             print()
         except:
-            print("There were no UP days in the {0}-day range".format(self.numberDays-1))
+            print("There were no UP days in the {0}-day range".format(self.daysToReport))
             print()
         for i in self.dnVol:
             totalDn += i
@@ -153,7 +150,7 @@ class stkVolume():
             print("downVolumeMeanNP: ", dnVolNP)
             print()
         except:
-            print("There were no DOWN days in the {0}-day range".format(self.numberDays-1))
+            print("There were no DOWN days in the {0}-day range".format(self.daysToReport))
             print()
         try:
             print("Up:Down Volume Avg: ", upVolNP/dnVolNP)
@@ -165,8 +162,8 @@ class stkVolume():
     def priceMove(self):
         print()
         # print("XXXXX: ", self.dfSubSet)
-        print("{0} days Price Observations: ".format(self.numberDays-1))
-        mostRecentPrice = self.dfSubSet['close'][self.numberDays-1]
+        print("{0} days Price Observations: ".format(self.daysToReport))
+        mostRecentPrice = self.dfSubSet['close'][self.daysToReport-1]
         firstPrice = self.dfSubSet['close'][1]
         # print()
         print("First,Last: ",firstPrice, mostRecentPrice)
@@ -176,12 +173,13 @@ class stkVolume():
         return
 
     def movAvg(self):
-        displayDays = int(input("How many day of {0}-moving average results to display?: ".format(self.numberDays-1)))
-        displayDaysNegative = displayDays * -1
-        print("DDN: ",displayDaysNegative)
-        self.dfFullSet['rolling'] = pd.rolling_mean(self.dfFullSet['vol'], self.numberDays - 1)
-        print("{0}-day moving average for {1} is".format(self.numberDays - 1, self.symbol))
-        print(self.dfFullSet[['date', 'rolling']][displayDaysNegative:])
+        # displayDays = int(input("How many day of {0}-moving average results to display?: ".format(self.numberDays-1)))
+        # displayDaysNegative = displayDays * -1
+        print("DDN: ",self.daysToReport,self.includeInResults)
+        self.dfFullSet['rolling'] = pd.rolling_mean(self.dfFullSet['vol'], self.movAvgLen)
+        print("{0}-day moving average for {1} is".format(self.movAvgLen, self.symbol))
+        print(self.dfFullSet[['date', 'rolling']][self.includeInResults:])
+        # print(self.dfFullSet[['date', 'rolling']][-5:])
 
     def vsOverallVolume(self):
         self.dfFullSet['MktVolu'] = self.dfOverallMktSet['vol']
@@ -196,7 +194,7 @@ class stkVolume():
         self.dfFullSet['IndivtoMktVol'] = np.round(self.dfFullSet['IndivRatioVol'] / self.dfFullSet['MktRatioVol'],
                                                    decimals=3)
         # print("Complete: ")
-        self.includeInResults = self.daysToReport * -1
+        # self.includeInResults = self.daysToReport * -1
         # print(self.includeInResults)
         # print(self.dfFullSet[self.includeInResults:])
         print(self.dfFullSet.tail())
