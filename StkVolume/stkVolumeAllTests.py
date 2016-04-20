@@ -55,21 +55,21 @@ class stkVolume():
     def priceVolStats(self):
         self.dfSubSet['changeClose'] = self.dfSubSet['close'].diff()
 
-        self.volMaskUp = self.dfSubSet['close'].diff() >= 0
-        self.volMaskDn = self.dfSubSet['close'].diff() < 0
+        self.volMaskUp = self.dfFullSet['close'].diff() >= 0
+        self.volMaskDn = self.dfFullSet['close'].diff() < 0
         # self.upMean = self.dfSubSet[self.volMaskUp].describe()
         # print("upMean: ",self.upMean)
         # print("volMask: ", volMaskUp)
         # gains = self.dfSubSet[volMaskUp]
         # print("Gains: ", gains, gains.count())
-        print("{0} Days of Tests For {1}".format(self.daysToReport,self.symbol.upper()))
-        print("Through ", self.dfFullSet['date'][-1:])
-        print()
-        print("UpDays: ")
-        print("Count: ",self.dfSubSet[self.volMaskUp]['close'][self.daysToReport:].count())
-        print()
-        print("DownDays: ")
-        print("Count: ", self.dfSubSet[self.volMaskDn]['close'][self.daysToReport:].count())
+        # print("{0} Days of Tests For {1}".format(self.daysToReport,self.symbol.upper()))
+        # print("Through ", self.dfFullSet['date'][-1:])
+        # print()
+        # print("UpDays: ")
+        # print("Count: ",self.volMaskUp[self.includeInResults:].count())
+        # print()
+        # print("DownDays: ")
+        # print("Count: ", self.dfFullSet[self.volMaskDn]['close'][self.includeInResults:].count())
 
     def onBalanceVolume(self):
         self.runningVol = 0
